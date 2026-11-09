@@ -1,4 +1,58 @@
 from guide_lib import *
+from uml import Diagram
+
+G = "\u00ab"; H = "\u00bb"
+
+
+def sheet7_q1():
+    dg = Diagram(170 * mm, 112)
+    dg.box("cls", 20, 95, [G + "metaclass" + H, "Class"], w=90)
+    dg.box("comp", 250, 105, [G + "stereotype" + H, "Component"], ["language : String"], w=140)
+    dg.box("test", 250, 50, [G + "stereotype" + H, "Test"], ["tester : String", "testprocedure : String"], w=140)
+    dg.line([dg.pt("comp", "left"), dg.pt("cls", "right", 0.7)], head="filled")
+    cx = dg.pt("cls", "bottom")[0]
+    dg.line([dg.pt("test", "left"), (cx, dg.pt("test", "left")[1]), dg.pt("cls", "bottom")], head="filled")
+    dg.text(125, 101, "extension (filled arrowhead)")
+    return dg.drawing
+
+
+def sheet7_q2():
+    dg = Diagram(170 * mm, 82)
+    dg.box("crm", 30, 65, [G + "Test" + H, G + "Component" + H, "CRM"], w=100)
+    dg.note("n", 230, 78, [G + "Component" + H, "language = 'Java'", G + "Test" + H, "tester = 'Gate'",
+                           "testprocedure = 'Black Box'"])
+    dg.line([dg.pt("crm", "right"), dg.pt("n", "left")], dashed=True)
+    return dg.drawing
+
+
+def sheet7_q3():
+    dg = Diagram(170 * mm, 205)
+    dg.text(0, 196, "Diagram 1: profile", 7.5, color=INK, font="Helvetica-Bold")
+    dg.box("cls", 10, 180, [G + "metaclass" + H, "Class"], w=80)
+    dg.box("ts", 160, 180, [G + "stereotype" + H, "TreeSpecies"], w=100)
+    dg.box("lp", 360, 192, "LeafPattern", w=105)
+    dg.box("gl", 360, 150, "GeographicLocation", w=105)
+    dg.line([dg.pt("ts", "left"), dg.pt("cls", "right")], head="filled")
+    y1, y2 = dg.pt("ts", "right", 0.75)[1], dg.pt("ts", "right", 0.25)[1]
+    dg.line([dg.pt("ts", "right", 0.75), (330, y1), (330, dg.pt("lp", "left")[1]), dg.pt("lp", "left")],
+            label="leaf pattern", label_at=(266, y1 + 3))
+    dg.line([dg.pt("ts", "right", 0.25), (340, y2), (340, dg.pt("gl", "left")[1]), dg.pt("gl", "left")],
+            label="general locations", label_at=(266, y2 - 9))
+    dg.text(0, 118, "Diagram 2: model", 7.5, color=INK, font="Helvetica-Bold")
+    dg.box("tree", 160, 105, "Tree", w=60)
+    dg.box("gl2", 330, 105, "GeographicLocation", w=105)
+    dg.line([dg.pt("tree", "right"), dg.pt("gl2", "left")], label="actual location",
+            label_at=(240, dg.pt("tree", "right")[1] + 3))
+    xs = [10, 125, 240, 355]
+    for n, x in zip(["SugarMaple", "Apricot", "AmericanElm", "Saguaro"], xs):
+        dg.box(n, x, 30, [G + "TreeSpecies" + H, n], w=100)
+    bar = 55
+    dg.line([(dg.pt("tree", "bottom")[0], bar), dg.pt("tree", "bottom")], head="hollow")
+    dg.line([(xs[0] + 50, bar), (xs[-1] + 50, bar)])
+    for x in xs:
+        dg.line([(x + 50, 30), (x + 50, bar)])
+    return dg.drawing
+
 
 g = Guide("L7-StereotypesPowertypes-Questions.pdf", "MDD - Lecture 7: Stereotypes and Powertypes - Exam question bank",
           "MDD Lecture 7 - Exam Questions")
@@ -6,8 +60,7 @@ T = "See the table below."
 
 g.p("Lecture 7: Stereotypes and Powertypes", "title")
 g.p("Model-Driven Development, University of Mannheim, Fall 2026. Exam question bank with model answers, built from "
-    "slides 1-24. No exercise sheet covers this lecture yet; the PSM of Exercise Sheet 1 uses stereotypes and is "
-    "linked here.", "sub")
+    "slides 1-24 and Exercise Sheet 7 (the PSM of Exercise Sheet 1 also uses stereotypes and is linked here).", "sub")
 g.add(Spacer(1, 10))
 
 g.p("How to use this", "h1")
@@ -17,6 +70,8 @@ g.p(bullets(HOW_TO_USE_COMMON + [
     "Likely question types: define profile / extension / stereotype / tagged value; <b>metamodeling approach vs profile "
     "approach</b>; optional vs required extension; <b>read or draw a profile</b> (EJB example); the four generalization-set "
     "constraints and their combinations; <b>identify the powertype</b> in a model and explain it.",
+    "Exercise Sheet 7 (section E) asks you to <b>draw</b> profiles, stereotyped classes with tagged values, and a "
+    "powertype expressed with a stereotype, and to <b>classify generalization sets</b>. Practise drawing them on paper.",
 ]))
 
 g.p("The 60-second summary", "h1")
@@ -324,7 +379,85 @@ g.qa("MED", "Is a powertype the same as a stereotype? Compare.",
          "models <b>domain categories</b>, not language extensions.",
      ]) + "<br/><i>(Comparison is mine.)</i>", "slides 5, 21 (reasoning)", short="Powertype vs stereotype.")
 
-g.sec("E. Slide details to be aware of")
+g.sec("E. Tutorial: Exercise Sheet 7")
+g.p("Legend for the diagrams: <b>filled</b> black arrowhead = <b>extension</b> (stereotype to metaclass); "
+    "<b>hollow</b> triangle = generalization; dashed line = note attachment.", "small")
+
+g.qa("HIGH", "1. Draw a diagram defining two extensions of the base Class with the stereotypes (a) Component (tag "
+     + c("language : String") + ") and (b) Test (tags " + c("tester : String") + ", " + c("testprocedure : String") + ").",
+     "Model answer drawn below.<br/>" + bullets([
+         "Three boxes: " + c("«metaclass» Class") + " and two " + c("«stereotype»") + " boxes.",
+         "Each stereotype has its tags as <b>attributes</b> (tag definitions).",
+         "Each stereotype is connected to Class by an <b>extension</b>: solid line, <b>filled</b> arrowhead at the "
+         "metaclass. Not a hollow generalization triangle.",
+         "No " + c("{required}") + ": nothing says every class must carry the stereotype, so both extensions are "
+         "<b>optional</b>.",
+     ]), "slides 4-7, 9; Exercise Sheet 7, Q1 (sample solution)", tut="7, Q1",
+     short="Draw extensions: stereotypes Component and Test extend Class.", extra=[sheet7_q1()])
+
+g.qa("HIGH", "2. Draw a class CRM stereotyped by Component and Test, with tagged values Java, 'Gate' and 'Black Box' for "
+     "language, tester and testprocedure.",
+     "Model answer drawn below.<br/>" + bullets([
+         "Both stereotypes on the class: two guillemet lines, or one list " + c("«Component, Test» CRM") +
+         " (slide 9).",
+         "The <b>tagged values</b> go in a <b>note</b> attached with a dashed line, <b>grouped by stereotype</b> "
+         "(slide 10).",
+         "Alternative (storage view, slide 10): CRM linked to an instance " + c(":Component") + " (language = 'Java') "
+         "and an instance " + c(":Test") + " (tester = 'Gate', testprocedure = 'Black Box').",
+     ]) + "<br/>" + careful("the sample solution writes 'Gates' and 'Black-Box'; the question says 'Gate' and "
+                            "'Black Box'. Copy the values exactly as asked."),
+     "slides 9-10; Exercise Sheet 7, Q2 (sample solution)", tut="7, Q2",
+     short="Draw CRM with stereotypes Component and Test and its tagged values.", extra=[sheet7_q2()])
+
+g.qa("HIGH", "3. Draw two diagrams capturing the Tree Species powertype example (slide 22) using stereotypes.",
+     "<b>Diagram 1, the profile:</b> the powertype becomes a <b>stereotype</b> that extends Class; the species-level "
+     "properties become associations/tags of the stereotype.<br/>"
+     "<b>Diagram 2, the model:</b> Tree with its actual location; each species is a subclass of Tree "
+     "<b>stereotyped</b> " + c("\u00abTreeSpecies\u00bb") + ". Both diagrams are drawn below.<br/>"
+     "<b>Why it works:</b> a stereotype is a kind of metaclass (slide 5), so \"SugarMaple is a TreeSpecies\" is "
+     "expressed by stereotyping the <b>class</b> SugarMaple. Its leaf pattern and general locations become its "
+     "<b>tagged values</b>. <b>Limitation:</b> the species are no longer ordinary objects of a domain class, and the "
+     "stereotype mixes language level and domain level. This is exactly the problem <b>deep modeling</b> (Lecture 8, "
+     "Sheet 8 Q1) solves.", "slides 5, 21-22; Exercise Sheet 7, Q3 (sample solution)", tut="7, Q3",
+     short="Draw the Tree Species powertype with a stereotype (profile + model).", extra=[sheet7_q3()])
+
+g.qa("HIGH", "4. Describe the principle of generalization sets. What are they used for?",
+     "<b>Official answer:</b> a generalization set is a set of generalization relationships that <b>group together</b> "
+     "generalizations from a given class and <b>specialize the class with respect to a certain property or "
+     "perspective</b>, called the <b>discriminant</b>.<br/>" + bullets([
+         "<b>Complete</b>: every instance of the specialized (general) class is an instance of <b>at least one</b> "
+         "subclass in the set.",
+         "<b>Disjoint</b>: no (indirect) instance of the general class is an instance of <b>more than one</b> subclass; "
+         "each instance is in <b>at most one</b> subclass.",
+         "(Opposites: <b>incomplete</b> and <b>overlapping</b>; see section C.)",
+     ]) + "<br/><b>Used for:</b> stating precisely how a class is partitioned. One class can have <b>several</b> "
+     "generalization sets with different discriminants, e.g. Person by <i>gender</i> {complete, disjoint} and by "
+     "<i>employmentStatus</i> (Lecture 8, slide 14). The name of the set usually names the discriminant.",
+     "slide 16; Exercise Sheet 7, Q4 (sample solution); L8 slide 14", tut="7, Q4",
+     short="Principle of generalization sets (discriminant, complete, disjoint).")
+
+g.qa("HIGH", "5. For each example, state whether the generalization set is complete/incomplete and "
+     "disjoint/overlapping.", "<b>Official answers</b>, with the reason that earns the marks:",
+     "Exercise Sheet 7, Q5 (sample solution)", tut="7, Q5",
+     short="Classify 4 generalization sets (Sportsman, Employee, Shape, Patient).",
+     extra=[grid([
+         ["General class: subclasses", "Answer", "Reason"],
+         ["Sportsman: Squashplayer, Tennisplayer", "<b>incomplete, overlapping</b>",
+          "more sports exist than squash and tennis; one person can play both"],
+         ["Employee: Placement Student, Casual Employee, Fulltime Employee, Consultant", "<b>complete, overlapping</b>",
+          "complete <b>under the assumption</b> that these are all job categories; a consultant can also be a "
+          "fulltime employee"],
+         ["Shape: Polygon, Ellipse, Spline", "<b>incomplete, disjoint</b>",
+          "more shapes exist; a shape is not two of these at once"],
+         ["Patient: Out-patient, In-patient", "<b>complete, disjoint</b>",
+          "every patient is treated either as an in-patient or as an out-patient, not both"],
+     ], [55 * mm, 35 * mm, 80 * mm]), Spacer(1, 4),
+         Paragraph("Exam tip: always give <b>both</b> dimensions and <b>one sentence of reasoning</b>, and state your "
+                   "assumption where the domain is ambiguous (the official Employee answer does exactly this). "
+                   "Patient is only disjoint <i>at a given moment</i>: the same person can be an in-patient now and an "
+                   "out-patient later.", S["small"])])
+
+g.sec("F. Slide details to be aware of")
 g.qa("LOW", "Which slide details are inconsistent?",
      bullets([
          "<b>Slide 10:</b> the stereotype Creator defines " + c("author, date") + " (slide 9) but the tagged values say "

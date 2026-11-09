@@ -5,14 +5,15 @@ T = "See the table below."
 
 g.p("Lecture 5: ATL (ATLAS Transformation Language)", "title")
 g.p("Model-Driven Development, University of Mannheim, Fall 2026. Exam question bank with model answers, built from "
-    "slides 1-26 and Exercise Sheet 5.", "sub")
+    "slides 1-26 and Exercise Sheets 5-6.", "sub")
 g.add(Spacer(1, 10))
 
 g.p("How to use this", "h1")
 g.p(bullets(HOW_TO_USE_COMMON + [
     "ATL is where the course turns into <b>model transformations</b> (the PIM-to-PSM arrow from Lecture 1). Expect "
     "<b>theory</b> (rule kinds, source/target patterns, determinism, refining mode) and <b>writing a small "
-    "transformation</b> for two given metamodels, exactly like Exercise Sheet 5.",
+    "transformation</b> for two given metamodels, exactly like Exercise Sheets 5 and 6. Sheet 6 even gives "
+    "<b>exam-style points</b> (12 points), so treat section H as a mock exam question.",
     "ATL expressions are OCL, so everything from Lectures 2-3 (navigation, collect, sum, iterate, oclIsUndefined) is "
     "reused here.",
     "Page 2 is a cheat sheet with the complete Families2Persons transformation: learn to write it from memory.",
@@ -372,8 +373,67 @@ g.qa("HIGH", "Why are lazy rules the natural choice in PortA2PortB? What does " 
      "would give one target element instead of two.", "slide 9; Exercise Sheet 5", tut="5, Q2",
      short="Why lazy rules in PortA2PortB; what thisModule is.")
 
-g.sec("H. Practice")
-g.p("My own exercises in the style of the slides and Sheet 5.", "small")
+g.sec("H. Tutorial: Exercise Sheet 6 (12 points, exam style)")
+g.p("Source <b>Task</b> metamodel: " + c("Task(title, locationName, resource : String)") + ". Target <b>Simulation</b> "
+    "metamodel: " + c("SimulationStep(identifier, locationName : String)") + " with a reference " + c("resource") +
+    " to " + c("Resource(name : String)") + ". Two transformations: <b>Task2Simulation</b> and <b>Simulation2Task</b>. "
+    "The key difference: in Task the resource is a <b>String attribute</b>, in Simulation it is a <b>separate model "
+    "element</b>.", "body")
+g.p(careful("the file MDD-Exercise-6-Solutions.pdf in the course folder actually contains the <b>Sheet 5</b> "
+            "solutions, so there is no official solution for Sheet 6. The answers below are mine, built from the "
+            "lecture rules and the Sheet 5 solution style. Ask the tutor for the official one if possible."), "small")
+
+g.qa("HIGH", "(a) Write the headers of the two ATL modules. (2 points)",
+     ocl("module Task2Simulation;\ncreate OUT : Simulation from IN : Task;\n\n"
+         "module Simulation2Task;\ncreate OUT : Task from IN : Simulation;") +
+     "<br/>One point each: module name, then " + c("create OUT : <target metamodel> from IN : <source metamodel>;") +
+     ". The metamodels are called Task and Simulation (the labels under the diagrams). Do not swap source and target "
+     "in the second module.", "slide 19; Exercise Sheet 6, Q1(a) (own solution)", tut="6, Q1(a)",
+     short="Headers of Task2Simulation and Simulation2Task.")
+
+g.qa("HIGH", "(b) Write the rule Task to SimulationStep: title to identifier, locationName to locationName, and "
+     "resource to the name of the created Resource model element. (6 points)",
+     ocl("rule Task2SimulationStep {\n  from\n    t : Task!Task\n  to\n    s : Simulation!SimulationStep (\n"
+         "      identifier   <- t.title,\n      locationName <- t.locationName,\n      resource     <- r\n    ),\n"
+         "    r : Simulation!Resource (\n      name <- t.resource\n    )\n}") +
+     "<br/>" + bullets([
+         "The <b>target pattern has two elements</b> (slide 12: one element is created for each type of the target "
+         "pattern). " + c("s") + " and " + c("r") + " are created together for every Task.",
+         "The reference " + c("resource <- r") + " links the step to the Resource created in the <b>same rule</b>; "
+         "target elements can be referenced by their variable name inside the rule.",
+         "The String " + c("t.resource") + " becomes the " + c("name") + " attribute of the new Resource.",
+     ]) + "Likely marks: header of the rule and source pattern, the SimulationStep with its two bindings, the second "
+     "target element Resource, and the link between them.",
+     "slides 11-12; Exercise Sheet 6, Q1(b) (own solution)", tut="6, Q1(b)",
+     short="Rule Task2SimulationStep (two target elements, link to Resource).")
+
+g.qa("HIGH", "(c) Write the rule SimulationStep to Task: identifier to title, locationName to locationName, and the "
+     "Resource model element to resource. (4 points)",
+     ocl("rule SimulationStep2Task {\n  from\n    s : Simulation!SimulationStep\n  to\n    t : Task!Task (\n"
+         "      title        <- s.identifier,\n      locationName <- s.locationName,\n"
+         "      resource     <- s.resource.name\n    )\n}") +
+     "<br/>The Resource element is <b>flattened back into a String</b> by navigating to its name: "
+     + c("s.resource.name") + ". No rule is needed for Resource, because it produces no target element of its own.<br/>"
+     "If the reference may be empty (multiplicity not shown on the sheet), guard it:<br/>" +
+     ocl("resource <- if s.resource.oclIsUndefined() then ''\n               else s.resource.name endif"),
+     "slides 11-12, 20; Exercise Sheet 6, Q1(c) (own solution)", tut="6, Q1(c)",
+     short="Rule SimulationStep2Task (navigate s.resource.name).")
+
+g.qa("MED", "Sheet 6: why does (b) need two target elements while (c) needs only one? What happens if you also wrote a "
+     "separate standard rule Resource2... in Simulation2Task?",
+     bullets([
+         "(b) goes from <b>one</b> source element to <b>two</b> target elements (step + resource), so the target pattern "
+         "lists both.",
+         "(c) goes from two source elements (step + resource) to <b>one</b> Task; the resource is only <b>read</b> by "
+         "navigation, so matching SimulationStep alone is enough.",
+         "An extra standard rule for Resource would create Resource-derived elements in the Task model, which has no "
+         "such class: there is nothing to create, so no rule is wanted. Only elements that become target elements need "
+         "rules (as with Chapter in Sheet 5).",
+     ]), "slides 9-12; Exercise Sheet 6 (reasoning)", tut="6, Q1",
+     short="Why (b) has two target elements and (c) one; no Resource rule needed.")
+
+g.sec("I. Practice")
+g.p("My own exercises in the style of the slides and Sheets 5-6.", "small")
 
 g.qa("HIGH", "Write the header of a transformation that turns a UML model (metamodel " + c("UML") + ") into a Java "
      "model (metamodel " + c("Java") + "), and the header for a refinement of a UML model.",
@@ -434,7 +494,7 @@ g.qa("MED", "ATL vs OCL: what is different when you write expressions in ATL?",
          + c("oclIsUndefined()") + ") is plain OCL.",
      ]), "slides 4, 7, 10, 19-22", short="ATL vs OCL syntax differences.")
 
-g.sec("I. Slide details to be aware of")
+g.sec("J. Slide details to be aware of")
 g.qa("LOW", "Which details on the slides are inconsistent?",
      bullets([
          "<b>Slide 22:</b> " + c("'Mr.' + s.firstName") + " gives \"Mr.Jim March\" (no space), but slide 16 shows "
@@ -443,7 +503,10 @@ g.qa("LOW", "Which details on the slides are inconsistent?",
          + c("create OUT : Persons from IN : Families") + " (OUT is Persons, IN is Families).",
          "<b>Sheet 5, Q2 solution:</b> binds " + c("inPort/outPort") + " although the metamodel names are "
          + c("inputPort/outputPort") + ".",
-     ]), "slides 16, 19, 22; Exercise Sheet 5", short="Slide/solution inconsistencies.")
+         "<b>Sheet 6:</b> the target attribute is spelled \"indentifier\" in the diagram but \"identifier\" in the "
+         "question; use the question's spelling and mention it. The Sheet 6 solution file contains the Sheet 5 "
+         "solutions.",
+     ]), "slides 16, 19, 22; Exercise Sheets 5-6", short="Slide/solution inconsistencies.")
 
 g.self_test()
 g.build()
