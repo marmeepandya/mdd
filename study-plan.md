@@ -46,10 +46,10 @@
 
 ## Week 4: Mocks and final review
 
-- [ ] **Thu 10 Dec:** **Mock 1**: 90 min, closed book, handwritten
+- [ ] **Thu 10 Dec:** **Mock 1** (`study-guides/mocks/MDD-Mock-1.pdf`): 90 min, closed book, handwritten. Do not open it before this day.
 - [ ] **Fri 11 Dec:** Go through Mock 1 mistakes → redo the ❌ list
 - [ ] **Sat 12 Dec:** Weakest topic from Mock 1 (most likely OCL writing)
-- [ ] **Sun 13 Dec:** **Mock 2** at **08:30**, the real exam time slot
+- [ ] **Sun 13 Dec:** **Mock 2** (`study-guides/mocks/MDD-Mock-2.pdf`) at **08:30**, the real exam time slot
 - [ ] **Mon 14 Dec:** Review Mock 2 → quick pass over all 8 self-test pages
 - [ ] **Tue 15 Dec:** Light day, max 1 h: cheat sheets and ❌ list only. No new material. Sleep early.
 - [ ] **Wed 16 Dec:** Exam, 08:30. Set two alarms. After the exam, switch fully to ML.
